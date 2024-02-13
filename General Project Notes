@@ -1,0 +1,54 @@
+Using this as our project planning/pacing document so that everything is in one place.
+
+
+BIG GOALS 
+
+Interactive data displays! 
+
+Data must be just from EIA (or other reputable resource) 
+
+ 
+
+After 2/8 class 
+
+Peter: I think API work? I didn’t catch it 
+
+Jack:  Organizing the Git Repo and streamlining communication, investigate API region meanings: find shape files 
+
+Read EIA API docs for this question: what types of geographic objects are used in this data? (States, ZIPs, etc.) 
+
+Run some small test queries and inspect results 
+
+Maybe write some summary documentation for the group (markdown file in github?) 
+
+What extra files do we need to be able to plot data keyed to these types of geographic objects? 
+
+Go find shape files as needed to display our data 
+
+Zak: finding ways to make the interaction 
+
+Lexi:  finding ways to create the interaction using python 
+
+Do research on how we can create interactive charts using  
+
+Find code that shows how we can do this  
+
+Give examples of projects that did this before 
+
+ 
+
+Brainstorming: 
+
+Energy production by hour 
+
+Are there seasonal changes to energy production/consumption? 
+
+Interaction would be comparisons across months? 
+
+Find regional distinctions that we can use -  work more on this
+
+ 
+
+Done: 
+Git Repo - Jack
+Find regional distinctions - Jack, kind of
