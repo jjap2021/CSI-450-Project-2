@@ -1,1 +1,22 @@
 This document will act as a 'codebook' for using the API keys. Here you'll find what to type where (eventually, my computer crashed after I did a third of this)
+
+be sure to import 'requests' at the top of your python code so this all works, mine looks like 'wBj3RyWz9rDaJDt1m5H4O2VKYYgC5P6tWEaYgEqS'
+you can also include your api key in a way like 'api_key = "XXXXXXXXXXX"', would save some tabbing back and forth
+
+include an endpoint, i think it will mostly be 'http://api.eia.gov/v2/series/', but it's necessary to make the code work
+endpoint = 'http://api.eia.gov/v2/series/'
+
+DO NOT FORGET THE V2, THAT'S THE OLD CLIENT(i got stuck on this bug)
+
+then you can create a request that should work pretty basically, but will be a lot of data, with the following code
+
+params = {
+    'api_key': api_key,
+    'series_id': 'ELEC.GEN.ALL-AL-99.A'
+}
+
+response = requests.get(endpoint, params=params)
+data = response.json()
+print(data)
+
+need the last two lines for the code to print anything. be sure to include.
