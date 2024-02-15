@@ -13,3 +13,8 @@ df.sort_values(by=['period', 'location', 'fueltypeid'])
 #Right now, I'm trying to figure out how to combine all rows with the same date
 #into one row, with columns for each energy type/usage amount. LMK if you know how
 #to go about this!
+piv = pd.pivot_table(df, index=['period', 'location'], columns = ['fuelTypeDescription'], values = ['total-consumption-btu'])
+
+import seaborn as sns
+sns.lineplot(data = piv, x = 'period', y = ('total-consumption-btu', 'all fuels'), hue = 'location')
+#This graph sucks, but I just wanted to show that I pivoted the data and how to actually graph using a multi-index
