@@ -18,3 +18,7 @@ piv = pd.pivot_table(df, index=['period', 'location'], columns = ['fuelTypeDescr
 import seaborn as sns
 sns.lineplot(data = piv, x = 'period', y = ('total-consumption-btu', 'all fuels'), hue = 'location')
 #This graph sucks, but I just wanted to show that I pivoted the data and how to actually graph using a multi-index
+
+
+#Time Slider Documentation https://python-visualization.github.io/folium/latest/user_guide/plugins/timeslider_choropleth.html
+#Cloropleth Documentation  https://python-visualization.github.io/folium/latest/getting_started.html
