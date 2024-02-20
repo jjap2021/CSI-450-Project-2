@@ -1,50 +1,65 @@
-##Took peter's code and messed with it below
-
+import pandas as pd
 import requests
 import json
-import pandas as pd
-import seaborn as sns
-import geopandas as gpd
-import matplotlib as plt
-
-
 url = 'https://api.eia.gov/v2/electricity/electric-power-operational-data/data/?frequency=monthly&data[0]=total-consumption-btu&facets[fueltypeid][]=ALL&facets[fueltypeid][]=AOR&facets[fueltypeid][]=COW&facets[fueltypeid][]=FOS&facets[fueltypeid][]=NGO&facets[fueltypeid][]=SUN&facets[fueltypeid][]=WND&facets[sectorid][]=99&facets[location][]=AK&facets[location][]=AL&facets[location][]=AR&facets[location][]=AZ&facets[location][]=CA&facets[location][]=CO&facets[location][]=CT&facets[location][]=DC&facets[location][]=DE&facets[location][]=FL&facets[location][]=GA&facets[location][]=HI&facets[location][]=IA&facets[location][]=ID&facets[location][]=IL&facets[location][]=IN&facets[location][]=KS&facets[location][]=KY&facets[location][]=LA&facets[location][]=MA&facets[location][]=MD&facets[location][]=ME&facets[location][]=MI&facets[location][]=MN&facets[location][]=MO&facets[location][]=MS&facets[location][]=MT&facets[location][]=NC&facets[location][]=ND&facets[location][]=NE&facets[location][]=NH&facets[location][]=NJ&facets[location][]=NM&facets[location][]=NV&facets[location][]=NY&facets[location][]=OH&facets[location][]=OK&facets[location][]=OR&facets[location][]=PA&facets[location][]=PR&facets[location][]=RI&facets[location][]=SC&facets[location][]=SD&facets[location][]=TN&facets[location][]=TX&facets[location][]=US&facets[location][]=UT&facets[location][]=VA&facets[location][]=VT&facets[location][]=WA&facets[location][]=WI&facets[location][]=WV&facets[location][]=WY&start=2022-01&end=2023-01&sort[0][column]=location&sort[0][direction]=asc&offset=0&length=5000&api_key=u7e5iYnTkIJ7cwq2emALYbwgolqCG7DKuXRpaHPC'
-
-# Downloading the json file and loading it via the json library
-with requests.get(url, stream=True) as myfile:
+#This downloads the json file and loads it via the json library
+with requests.get(url, stream = True) as myfile:
     open("Energy", "wb").write(myfile.content)
-
 f = open("Energy")
 d = json.load(f)
 
-#Setting up a pandas dataframe and sorting it to be more readable
 df = pd.DataFrame(d["response"]["data"])
-df.sort_values(by=['period', 'location', 'fueltypeid'], inplace=True)
+df['total-consumption-btu'] = pd.to_numeric(df['total-consumption-btu'], errors='coerce') ## this is Jack's work, made it work for me
 
-#Pivot the data to combine rows with the same date
-piv = df.pivot_table(index=['period', 'location'], columns='fuelTypeDescription', values='total-consumption-btu', aggfunc='sum')
+df.sort_values(by=['period', 'location', 'fueltypeid'])
+#Right now, I'm trying to figure out how to combine all rows with the same date
+#into one row, with columns for each energy type/usage amount. LMK if you know how
+#to go about this!
+piv = pd.pivot_table(df, index=['period', 'location'], columns = ['fuelTypeDescription'], values = ['total-consumption-btu'])
 
-#Reset index to get 'period' and 'location' as columns
-piv.reset_index(inplace=True)
+# QUESTION 1: How much electricity is being generated in the US?
+# quick sums of all columns in the pivot table by types
+column_sums = piv.sum()
+print(column_sums)
 
-#Fill NaN values with 0
-piv.fillna(0, inplace=True)
+# generation by all fuels 
+US_total_generation = piv[('total-consumption-btu', 'all fuels')].sum()
+print(US_total_generation)
 
-#print(piv)
+# QUESTION 2: Where is it being generated?
 
-us_states = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+state_generation_fuels = piv[('total-consumption-btu', 'all fuels')].groupby('location').sum()
+state_generation_renewables = piv[('total-consumption-btu', 'all renewables')].groupby('location').sum()
+state_total_generation = state_generation_fuels + state_generation_renewables
+print(state_total_generation)
 
-# Merge the GeoDataFrame with the pivot DataFrame on 'location'
-merged_data = us_states.merge(piv, left_on='name', right_on='location', how='right')
+# QUESTION 3: Break that down by generation type. Where are the renewable sources of power located, and how much of the overall grid are they?
 
-# Plot the choropleth map
-fig, ax = plt.subplots(1, 1, figsize=(10, 8))
-merged_data.plot(column='all fuels', cmap='OrRd', linewidth=0.8, ax=ax, edgecolor='0.8', legend=True)
+all_renewables_generation = piv[('total-consumption-btu', 'all renewables')]
+percentage_by_source = (all_renewables_generation / US_total_generation) * 100
+renewable_breakdown_by_state = pd.DataFrame({
+    'All Renewables Generation (BTU)': all_renewables_generation,
+    'Percentage of Overall Grid': percentage_by_source
+})
 
-# Set the title and labels
-ax.set_title('Total Consumption of All Fuels')
-ax.set_xlabel('Longitude')
-ax.set_ylabel('Latitude')
+renewable_breakdown_by_state.head()
+## all above is lexi's work, thank you!! for some reason was not working for me
 
-# Show the plot
-plt.show()
+## section detecting NA
+na_values = df.isna()
+na_count_per_column = na_values.sum()
+na_count_per_row = na_values.sum(axis=1)
+print("NA values per column:")
+print(na_count_per_column)
+print("\nNA values per row:")
+print(na_count_per_row)
+
+## section detecting 0
+zero_values = (df == 0)
+zero_count_per_column = zero_values.sum()
+zero_count_per_row = zero_values.sum(axis=1)
+print("Zero values per column:")
+print(zero_count_per_column)
+print("\nZero values per row:")
+print(zero_count_per_row)
+## 107 zero values, #6 N/A Values
