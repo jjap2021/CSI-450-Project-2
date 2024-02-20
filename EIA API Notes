@@ -20,3 +20,59 @@ data = response.json()
 print(data)
 
 need the last two lines for the code to print anything. be sure to include.
+
+series id's:
+Electricity Generation:
+
+Total Electricity Generation: ELEC.GEN.ALL-US-99.A
+Electricity Generation by Energy Source (e.g., Coal, Natural Gas, Wind, Solar): ELEC.GEN.[SOURCE]-[REGION]-99.A
+Petroleum:
+
+Crude Oil Production: PET.WCRFPUS2.W
+Petroleum Product Prices: PET.EMM_EPMR_PTE_NUS_DPG.W
+Natural Gas:
+
+Natural Gas Production: NG.N9050US2.M
+Natural Gas Prices: NG.RNGWHHD.W
+Renewable Energy:
+
+Solar Energy Production: SUN.UTILITY.US-99.A
+Wind Energy Production: WTH.WND-50.W
+Energy Consumption:
+
+Total Energy Consumption: TOTAL.ESRCUUS.A
+Residential Energy Consumption: SEDS.CLPRB.US.A
+Prices:
+
+Crude Oil Prices: PET.RCLC1.W
+Natural Gas Prices: NG.RNGC1.W
+Emissions:
+
+Carbon Dioxide Emissions: EMISS.CO2-TOTV-TT-TO.A
+
+possible region inputs:
+United States:
+
+USA: United States as a whole.
+US: Abbreviated form for the United States.
+States:
+
+Two-letter state abbreviations (e.g., AL for Alabama, CA for California, TX for Texas).
+Full state names (e.g., Alabama, California, Texas).
+Census Regions:
+
+NE: Northeast region (includes Connecticut, Maine, Massachusetts, New Hampshire, Rhode Island, and Vermont).
+MW: Midwest region (includes Illinois, Indiana, Iowa, Kansas, Michigan, Minnesota, Missouri, Nebraska, North Dakota, Ohio, South Dakota, and Wisconsin).
+S: South region (includes Alabama, Arkansas, Delaware, District of Columbia, Florida, Georgia, Kentucky, Louisiana, Maryland, Mississippi, North Carolina, Oklahoma, South Carolina, Tennessee, Texas, Virginia, and West Virginia).
+W: West region (includes Alaska, Arizona, California, Colorado, Hawaii, Idaho, Montana, Nevada, New Mexico, Oregon, Utah, Washington, and Wyoming).
+Census Divisions:
+
+Division 1: DV01 (New England)
+Division 2: DV02 (Middle Atlantic)
+Division 3: DV03 (East North Central)
+Division 4: DV04 (West North Central)
+Division 5: DV05 (South Atlantic)
+Division 6: DV06 (East South Central)
+Division 7: DV07 (West South Central)
+Division 8: DV08 (Mountain)
+Division 9: DV09 (Pacific)
