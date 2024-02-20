@@ -25,6 +25,10 @@ piv = pd.pivot_table(df, index=['period', 'location'], columns = ['fuelTypeDescr
 # Perhaps use color to show the places with the highest concentration of energy plants
 # https://autogis-site.readthedocs.io/en/latest/lessons/lesson-5/interactive-maps.html
 # Can we use the sectroid number to plot the electricity generation by sectroid
+piv = piv.drop(index='US', level= 1)
+pd.set_option('display.max_columns', 500)
+pd.set_option('display.max_rows', 500)
+print(piv.columns.get_level_values(1))
 state_geo = requests.get(
     "https://raw.githubusercontent.com/python-visualization/folium-example-data/main/us_states.json"
 ).json()
@@ -59,6 +63,19 @@ folium.Choropleth(
     fill_opacity=0.7,
     line_opacity=0.2,
     legend_name="Coal Products",
+    bins=24,
+    use_jenks=True
+).add_to(interactive_map)
+folium.Choropleth(
+    geo_data=state_geo,
+    name="Natural Gas & Other Gases",
+    data=piv.loc['2022-01'],
+    columns=['ind',('total-consumption-btu', 'natural gas & other gases')],
+    key_on="feature.id",
+    fill_color="YlGn",
+    fill_opacity=0.7,
+    line_opacity=0.2,
+    legend_name="Natural Gas & Other Gases",
     bins=24,
     use_jenks=True
 ).add_to(interactive_map)
