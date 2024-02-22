@@ -22,18 +22,18 @@ piv = pd.pivot_table(df, index=['period', 'location'], columns = ['fuelTypeDescr
 # QUESTION 1: How much electricity is being generated in the US?
 # quick sums of all columns in the pivot table by types
 column_sums = piv.sum()
-print(column_sums)
+#   print(column_sums)
 
 # generation by all fuels 
 US_total_generation = piv[('total-consumption-btu', 'all fuels')].sum()
-print(US_total_generation)
+# print(US_total_generation)
 
 # QUESTION 2: Where is it being generated?
 
 state_generation_fuels = piv[('total-consumption-btu', 'all fuels')].groupby('location').sum()
 state_generation_renewables = piv[('total-consumption-btu', 'all renewables')].groupby('location').sum()
 state_total_generation = state_generation_fuels + state_generation_renewables
-print(state_total_generation)
+# print(state_total_generation)
 
 # QUESTION 3: Break that down by generation type. Where are the renewable sources of power located, and how much of the overall grid are they?
 
@@ -44,7 +44,7 @@ renewable_breakdown_by_state = pd.DataFrame({
     'Percentage of Overall Grid': percentage_by_source
 })
 
-renewable_breakdown_by_state.head()
+# renewable_breakdown_by_state.head()
 ## all above is lexi's work, thank you!! for some reason was not working for me
 
 ## section detecting NA
