@@ -72,30 +72,37 @@ nan_indices = df[df.isna().any(axis=1)].index
 # Find indices of zero values
 zero_indices = df[(df == 0).any(axis=1)].index
 
-#details of each NaN value in one line
-print("Details of NaN values:")
-for index in nan_indices:
-    details = "Index: {}, Period: {}, Location: {}, FuelTypeID: {}, All Columns: {}".format(
-        index, df.loc[index, 'period'], df.loc[index, 'location'], df.loc[index, 'fueltypeid'], df.loc[index]
-    )
-    print(details)
-
-#details of each zero value in one line
-print("\nDetails of zero values:")
-for index in zero_indices:
-    details = "Index: {}, Period: {}, Location: {}, FuelTypeID: {}, All Columns: {}".format(
-        index, df.loc[index, 'period'], df.loc[index, 'location'], df.loc[index, 'fueltypeid'], df.loc[index]
-    )
-    print(details)
-
-#below is a much simpler version of this
-# print("Geolocation and fueltypeid of NaN values:")
+# #details of each NaN value in one line
+# print("Details of NaN values:")
 # for index in nan_indices:
-#     print("Period: {}, Location: {}, FuelTypeID: {}".format(df.loc[index, 'period'], df.loc[index, 'location'], df.loc[index, 'fueltypeid']))
-    
-# print("\nGeolocation and fueltypeid of zero values:")
+#     details = "Index: {}, Period: {}, Location: {}, FuelTypeID: {}, All Columns: {}".format(
+#         index, df.loc[index, 'period'], df.loc[index, 'location'], df.loc[index, 'fueltypeid'], df.loc[index]
+#     )
+#     print(details)
+
+# #details of each zero value in one line
+# print("\nDetails of zero values:")
 # for index in zero_indices:
-#     print("Period: {}, Location: {}, FuelTypeID: {}".format(df.loc[index, 'period'], df.loc[index, 'location'], df.loc[index, 'fueltypeid']))
+#     details = "Index: {}, Period: {}, Location: {}, FuelTypeID: {}, All Columns: {}".format(
+#         index, df.loc[index, 'period'], df.loc[index, 'location'], df.loc[index, 'fueltypeid'], df.loc[index]
+#     )
+#     print(details)
+
+# below is a much simpler version of this
+print("Geolocation and fueltypeid of NaN values:")
+for index in nan_indices:
+    print("Period: {}, Location: {}, FuelTypeID: {}".format(df.loc[index, 'period'], df.loc[index, 'location'], df.loc[index, 'fuelTypeDescription']))
+
+print("\nGeolocation and fueltypeid of zero values:")
+for index in zero_indices:
+    print("Period: {}, Location: {}, FuelTypeID: {}".format(df.loc[index, 'period'], df.loc[index, 'location'], df.loc[index, 'fuelTypeDescription']))
 
 
 #NANs and zeros are in consumption btu only
+#Nan details are as follows:
+#Period: 2023-01, Location: DC, FuelTypeID: NGO
+# Period: 2023-01, Location: DC, FuelTypeID: FOS
+# Period: 2023-01, Location: ID, FuelTypeID: COW
+# Period: 2023-01, Location: ND, FuelTypeID: AOR
+# Period: 2023-01, Location: NE, FuelTypeID: NGO
+# Period: 2023-01, Location: WV, FuelTypeID: AOR
