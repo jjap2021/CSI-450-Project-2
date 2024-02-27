@@ -29,11 +29,11 @@ population_df['2022 population'] = population_df['2022 population'].str.replace(
 
 state_total_consumption = df.groupby('location')['total-consumption-btu'].sum()
 
-merged_df = pd.merge(state_total_consumption, population_df[['Abbrev.', '2022 population']], left_index=True, right_on='Abbrev.')
+merged_df = pd.merge(df, population_df[['State', '2022 population', 'Abbrev.']], left_on='location', right_on='Abbrev.')
 
 merged_df['consumption_per_capita'] = merged_df['total-consumption-btu'] / merged_df['2022 population']
 
-# print(merged_df)
+print(merged_df)
 
 
 # # generation by all fuels 
@@ -74,5 +74,3 @@ merged_df['consumption_per_capita'] = merged_df['total-consumption-btu'] / merge
 # print("\nGeolocation and fueltypeid of zero values:")
 # for index in zero_indices:
 #     print("Period: {}, Location: {}, FuelTypeID: {}".format(df.loc[index, 'period'], df.loc[index, 'location'], df.loc[index, 'fuelTypeDescription']))
-
-
