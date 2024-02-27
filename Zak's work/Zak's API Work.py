@@ -46,12 +46,13 @@ folium.Choropleth(
     data=piv.loc['2022-01'], #Only have this set to one month out of the data set for now, will change with the slider
     columns=['ind',('total-consumption-btu', 'fossil fuels')], #first value is the states, and the second is the values
     key_on="feature.id", #Don't change this
-    fill_color="YlGn", #Color palette
+    fill_color="OrRd", #Color palette
     fill_opacity=0.7,
     line_opacity=0.2,
     legend_name="Fossil Fuels Consumption", 
-    bins=24, #Change this for having only specific number of colors
-    use_jenks=True #Added because the US row skews the data
+    # bins=10, #Change this for having only specific number of colors
+    bins = [0,50, 100, 150, 200, 260],
+    # use_jenks=True #Added because the US row skews the data
 ).add_to(interactive_map)
 folium.Choropleth(
     geo_data=state_geo,
@@ -59,12 +60,13 @@ folium.Choropleth(
     data=piv.loc['2022-01'],
     columns=['ind',('total-consumption-btu', 'all coal products')],
     key_on="feature.id",
-    fill_color="YlGn",
+    fill_color="OrRd",
     fill_opacity=0.7,
     line_opacity=0.2,
     legend_name="Coal Products",
-    bins=24,
-    use_jenks=True
+    # bins=10,
+    bins= [0, 20, 40, 60, 80, 100]
+    # use_jenks=True
 ).add_to(interactive_map)
 folium.Choropleth(
     geo_data=state_geo,
@@ -72,12 +74,13 @@ folium.Choropleth(
     data=piv.loc['2022-01'],
     columns=['ind',('total-consumption-btu', 'natural gas & other gases')],
     key_on="feature.id",
-    fill_color="YlGn",
+    fill_color="OrRd",
     fill_opacity=0.7,
     line_opacity=0.2,
     legend_name="Natural Gas & Other Gases",
-    bins=24,
-    use_jenks=True
+    # bins=10,
+    # use_jenks=True
+    bins= [0, 40, 80, 120, 160, 200]
 ).add_to(interactive_map)
 folium.LayerControl().add_to(interactive_map) 
 interactive_map.save("fossilfuels_map.html")
