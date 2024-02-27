@@ -13,10 +13,10 @@ d = json.load(f)
 df = pd.DataFrame(d["response"]["data"])
 df['total-consumption-btu'] = pd.to_numeric(df['total-consumption-btu'], errors='coerce') ## this is Jack's work, made it work for me
 
+df = df.dropna()
+
 df.sort_values(by=['period', 'location', 'fueltypeid'])
-#Right now, I'm trying to figure out how to combine all rows with the same date
-#into one row, with columns for each energy type/usage amount. LMK if you know how
-#to go about this!
+
 piv = pd.pivot_table(df, index=['period', 'location'], columns = ['fuelTypeDescription'], values = ['total-consumption-btu'])
 
 # QUESTION 1: How much electricity is being generated in the US?
@@ -24,85 +24,55 @@ piv = pd.pivot_table(df, index=['period', 'location'], columns = ['fuelTypeDescr
 column_sums = piv.sum()
 #   print(column_sums)
 
-# generation by all fuels 
-US_total_generation = piv[('total-consumption-btu', 'all fuels')].sum()
-# print(US_total_generation)
+population_df = pd.read_csv("C:/Users/jjap2/OneDrive/Documents/CSI450/CSI-450-Project-2/Jack's work/CBP2022.csv")
+population_df['2022 population'] = population_df['2022 population'].str.replace(',', '').astype(float)
 
-# QUESTION 2: Where is it being generated?
+state_total_consumption = df.groupby('location')['total-consumption-btu'].sum()
 
-state_generation_fuels = piv[('total-consumption-btu', 'all fuels')].groupby('location').sum()
-state_generation_renewables = piv[('total-consumption-btu', 'all renewables')].groupby('location').sum()
-state_total_generation = state_generation_fuels + state_generation_renewables
-# print(state_total_generation)
+merged_df = pd.merge(state_total_consumption, population_df[['Abbrev.', '2022 population']], left_index=True, right_on='Abbrev.')
 
-# QUESTION 3: Break that down by generation type. Where are the renewable sources of power located, and how much of the overall grid are they?
+merged_df['consumption_per_capita'] = merged_df['total-consumption-btu'] / merged_df['2022 population']
 
-all_renewables_generation = piv[('total-consumption-btu', 'all renewables')]
-percentage_by_source = (all_renewables_generation / US_total_generation) * 100
-renewable_breakdown_by_state = pd.DataFrame({
-    'All Renewables Generation (BTU)': all_renewables_generation,
-    'Percentage of Overall Grid': percentage_by_source
-})
+# print(merged_df)
 
-# renewable_breakdown_by_state.head()
-## all above is lexi's work, thank you!! for some reason was not working for me
 
-## section detecting NA
-na_values = df.isna()
-na_count_per_column = na_values.sum()
-na_count_per_row = na_values.sum(axis=1)
-print("NA values per column:")
-print(na_count_per_column)
-print("\nNA values per row:")
-print(na_count_per_row)
+# # generation by all fuels 
+# US_total_generation = piv[('total-consumption-btu', 'all fuels')].sum()
+# # print(US_total_generation)
 
-## section detecting 0
-zero_values = (df == 0)
-zero_count_per_column = zero_values.sum()
-zero_count_per_row = zero_values.sum(axis=1)
-print("Zero values per column:")
-print(zero_count_per_column)
-print("\nZero values per row:")
-print(zero_count_per_row)
-## 107 zero values, #6 N/A Values
+# # QUESTION 2: Where is it being generated?
 
-# Find indices of NaN values
-nan_indices = df[df.isna().any(axis=1)].index
+# state_generation_fuels = piv[('total-consumption-btu', 'all fuels')].groupby('location').sum()
+# state_generation_renewables = piv[('total-consumption-btu', 'all renewables')].groupby('location').sum()
+# state_total_generation = state_generation_fuels + state_generation_renewables
+# # print(state_total_generation)
 
-# Find indices of zero values
-zero_indices = df[(df == 0).any(axis=1)].index
+# # QUESTION 3: Break that down by generation type. Where are the renewable sources of power located, and how much of the overall grid are they?
 
-# #details of each NaN value in one line
-# print("Details of NaN values:")
+# all_renewables_generation = piv[('total-consumption-btu', 'all renewables')]
+# percentage_by_source = (all_renewables_generation / US_total_generation) * 100
+# renewable_breakdown_by_state = pd.DataFrame({
+#     'All Renewables Generation (BTU)': all_renewables_generation,
+#     'Percentage of Overall Grid': percentage_by_source
+# })
+
+# # renewable_breakdown_by_state.head()
+# ## all above is lexi's work, thank you!! for some reason was not working for me
+
+# ## 107 zero values, #6 N/A Values
+
+# # Find indices of NaN values
+# nan_indices = df[df.isna().any(axis=1)].index
+
+# # Find indices of zero values
+# zero_indices = df[(df == 0).any(axis=1)].index
+
+# print("Geolocation and fueltypeid of NaN values:")
 # for index in nan_indices:
-#     details = "Index: {}, Period: {}, Location: {}, FuelTypeID: {}, All Columns: {}".format(
-#         index, df.loc[index, 'period'], df.loc[index, 'location'], df.loc[index, 'fueltypeid'], df.loc[index]
-#     )
-#     print(details)
+#     print("Period: {}, Location: {}, FuelTypeID: {}".format(df.loc[index, 'period'], df.loc[index, 'location'], df.loc[index, 'fuelTypeDescription']))
 
-# #details of each zero value in one line
-# print("\nDetails of zero values:")
+# print("\nGeolocation and fueltypeid of zero values:")
 # for index in zero_indices:
-#     details = "Index: {}, Period: {}, Location: {}, FuelTypeID: {}, All Columns: {}".format(
-#         index, df.loc[index, 'period'], df.loc[index, 'location'], df.loc[index, 'fueltypeid'], df.loc[index]
-#     )
-#     print(details)
-
-# below is a much simpler version of this
-print("Geolocation and fueltypeid of NaN values:")
-for index in nan_indices:
-    print("Period: {}, Location: {}, FuelTypeID: {}".format(df.loc[index, 'period'], df.loc[index, 'location'], df.loc[index, 'fuelTypeDescription']))
-
-print("\nGeolocation and fueltypeid of zero values:")
-for index in zero_indices:
-    print("Period: {}, Location: {}, FuelTypeID: {}".format(df.loc[index, 'period'], df.loc[index, 'location'], df.loc[index, 'fuelTypeDescription']))
+#     print("Period: {}, Location: {}, FuelTypeID: {}".format(df.loc[index, 'period'], df.loc[index, 'location'], df.loc[index, 'fuelTypeDescription']))
 
 
-#NANs and zeros are in consumption btu only
-#Nan details are as follows:
-#Period: 2023-01, Location: DC, FuelTypeID: NGO
-# Period: 2023-01, Location: DC, FuelTypeID: FOS
-# Period: 2023-01, Location: ID, FuelTypeID: COW
-# Period: 2023-01, Location: ND, FuelTypeID: AOR
-# Period: 2023-01, Location: NE, FuelTypeID: NGO
-# Period: 2023-01, Location: WV, FuelTypeID: AOR
