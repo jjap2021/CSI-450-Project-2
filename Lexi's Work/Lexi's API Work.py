@@ -26,13 +26,27 @@ print(US_total_generation)
 
 # QUESTION 2: Where is it being generated?
 
+# sums of each state as a table
+
 state_generation_fuels = piv[('total-consumption-btu', 'all fuels')].groupby('location').sum()
 state_generation_renewables = piv[('total-consumption-btu', 'all renewables')].groupby('location').sum()
 state_total_generation = state_generation_fuels + state_generation_renewables
-print(state_total_generation)
+state_total_generation_df = pd.DataFrame({'Total Generation': state_total_generation})
+print(state_total_generation_df)
+
+# lets do the percentage of each states now so we can see which states consume the most
+# I added the percentage sign too, do we like that? i can always get rid of it 
+
+overall_total = state_total_generation.sum()
+state_percentages = (state_total_generation / overall_total) * 100
+state_percentages_df = pd.DataFrame({'Percentage': state_percentage})
+state_percentages_df['Percentage'] = state_percentages_df['Percentage'].map('{:.2f}%'.format)
+print(state_percentages_df)
 
 # QUESTION 3: Break that down by generation type. Where are the renewable sources of power located, and how much of the overall grid are they?
 
+# lets just start simple and do renewables first
+# I took the generation of renewables at each state and then took the percentage of that to show it on the "overall grid"
 all_renewables_generation = piv[('total-consumption-btu', 'all renewables')]
 percentage_by_source = (all_renewables_generation / US_total_generation) * 100
 renewable_breakdown_by_state = pd.DataFrame({
@@ -42,8 +56,50 @@ renewable_breakdown_by_state = pd.DataFrame({
 
 print(renewable_breakdown_by_state)
 
-print('hi')
+# lets test all fuels now to make sure it works
 
-print('bye')
+all_fuels_generation = piv[('total-consumption-btu','all fuels')]
+percentage_by_source = (all_fuels_generation / US_total_generation) * 100
 
+allfuels_breakdown = pd.DataFrame({
+    'All Fuels Generation (BTU)': all_fuels_generation,
+    'Percentage of Overall Grid': percentage_by_source
+})
+
+print(allfuels_breakdown)
+
+# powerplants API
+
+import pandas as pd
+import requests
+import json
+
+api_key = 'O321szCL3xptUGbdazZYEY1HBQ5qtIT0vFev6bTe'
+# url = f'https://api.eia.gov/v2/electricity/facility-fuel/data/?frequency=monthly&data[0]=total-consumption-btu&facets[state][]=AK&facets[state][]=AL&facets[state][]=AR&facets[state][]=AZ&facets[state][]=CA&facets[state][]=CO&facets[state][]=CT&facets[state][]=DC&facets[state][]=DE&facets[state][]=FL&facets[state][]=GA&facets[state][]=HI&facets[state][]=IA&facets[state][]=ID&facets[state][]=IL&facets[state][]=IN&facets[state][]=KS&facets[state][]=KY&facets[state][]=LA&facets[state][]=MA&facets[state][]=MD&facets[state][]=ME&facets[state][]=MI&facets[state][]=MN&facets[state][]=MO&facets[state][]=MS&facets[state][]=MT&facets[state][]=NC&facets[state][]=ND&facets[state][]=NE&facets[state][]=NH&facets[state][]=NJ&facets[state][]=NM&facets[state][]=NV&facets[state][]=NY&facets[state][]=OH&facets[state][]=OK&facets[state][]=OR&facets[state][]=PA&facets[state][]=PR&facets[state][]=RI&facets[state][]=SC&facets[state][]=SD&facets[state][]=TN&facets[state][]=TX&facets[state][]=UT&facets[state][]=VA&facets[state][]=VT&facets[state][]=WA&facets[state][]=WI&facets[state][]=WV&facets[state][]=WY&facets[state][]=null&start=2022-01&end=2023-12&sort[0][column]=period&sort[0][direction]=desc&offset=0&length=5000&api_key={api_key}'
+
+url = f'https://api.eia.gov/v2/electricity/facility-fuel/data/?frequency=monthly&data[0]=total-consumption-btu&start=2022-01&end=2023-12&sort[0][column]=period&sort[0][direction]=desc&offset=0&length=5000&api_key={api_key}'
+
+with requests.get(url, stream = True) as myfile:
+    open("Energy", "wb").write(myfile.content)
+
+with open("Energy", "r") as f:
+    d = json.load(f)
+
+df = pd.DataFrame(d["response"]["data"])
+df
+
+# how many power plants does each state have?
+
+df.sort_values(by=['state', 'plantCode'], inplace=True)
+power_plants_count = df.groupby('state')['plantCode'].nunique()
+
+power_plants_count
+
+# which powerplants generate the most?
+
+df.drop_duplicates(subset=['plantName', 'state'], inplace=True)
+df.sort_values(by='total-consumption-btu', ascending=False, inplace=True)
+top_generating_powerplants = df[['plantName', 'state', 'total-consumption-btu']].head(10)
+
+top_generating_powerplants
 
