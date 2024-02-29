@@ -27,9 +27,11 @@ piv = pd.pivot_table(df, index=['period', 'location'], columns = ['fuelTypeDescr
 # https://autogis-site.readthedocs.io/en/latest/lessons/lesson-5/interactive-maps.html
 # Can we use the sectroid number to plot the electricity generation by sectroid
 piv = piv.drop(index='US', level= 1)
+piv.columns = piv.columns.get_level_values(1)
+print(piv.columns)
+print(piv.head())
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.max_rows', 500)
-# print(piv.columns.get_level_values(1))
 state_geo = requests.get(
     "https://raw.githubusercontent.com/python-visualization/folium-example-data/main/us_states.json"
 ).json()
@@ -44,44 +46,30 @@ states_id = gpd.GeoDataFrame.from_features(state_geo, crs="EPSG:4326")
 statesmerge = states_id.merge(abbrs, how="left", left_on="name", right_on="name")
 statesmerge["geometry"] = statesmerge.geometry.simplify(0.05)
 print(statesmerge.head())
-# with requests.get('https://raw.githubusercontent.com/python-visualization/folium-example-data/main/us_states.json', stream = True) as Myfile:
-#     open("States", "wb").write(Myfile.content)
-# h = open("States")
-# s = json.load(h)
-# p = gpd.read_file('https://raw.githubusercontent.com/python-visualization/folium-example-data/main/us_states.json')
-# geo = pd.json_normalize(s['features'], max_level=0)
-
-# # The combining of the staes data and the energy data is a remnant of trying a different method, but it works in getting rid of the 'US' column, so I left it in
-# p = p.rename({'id': 'location'}, axis=1)
-# states = df.join(p.set_index('location'), on='location', validate = 'm:1')
-# print(states.head())
 interactive_map = folium.Map(
     location=(39.202257, -75.952992),
     zoom_start=10,
     control_scale=True
 )
-# piv_reset = piv.reset_index()
-# statesmerge = states_id.merge(df, how="left", left_on="id", right_on="location")
-# print(statesmerge.head())
 piv['ind'] = piv.index.get_level_values('location')
 piv['time'] = piv.index.get_level_values('period')
-aggregated_data = piv.groupby('ind')[['total-consumption-btu', 'fossil fuels']].sum().reset_index()
 
 # Merge with statesmerge DataFrame
 statesmerge = statesmerge.merge(
-    aggregated_data,
+    piv,
     how="left",
     left_on="alpha-2",
-    right_on="ind",
+    right_on="ind"
 )
-
-# Assign the merged values to the "total-consumption" column in statesmerge
-statesmerge["total-consumption"] = statesmerge["total-consumption-btu"]
+print(statesmerge.head())
+# # Assign the merged values to the "total-consumption" column in statesmerge
+# statesmerge["total-consumption"] = statesmerge["total-consumption-btu"]
 cho = folium.Choropleth(
     geo_data=state_geo, #set the reference for the states
     name="Fossil Fuels", #graph name
     data=piv.loc['2022-01'], #Only have this set to one month out of the data set for now, will change with the slider
-    columns=['ind',('total-consumption-btu', 'fossil fuels')], #first value is the states, and the second is the values
+    columns=['ind', 'fossil fuels'],
+    # columns=['ind',('total-consumption-btu', 'fossil fuels')] #first value is the states, and the second is the values
     key_on="feature.id", #Don't change this
     fill_color="OrRd", #Color palette
     fill_opacity=0.7,
@@ -96,7 +84,8 @@ ch =folium.Choropleth(
     geo_data=state_geo,
     name="Coal Products",
     data=piv.loc['2022-01'],
-    columns=['ind',('total-consumption-btu', 'all coal products')],
+    # columns=['ind',('total-consumption-btu', 'all coal products')],
+    columns=['ind', 'all coal products'],
     key_on="feature.id",
     fill_color="OrRd",
     fill_opacity=0.7,
@@ -111,7 +100,7 @@ cp = folium.Choropleth(
     geo_data=state_geo,
     name="Natural Gas & Other Gases",
     data=piv.loc['2022-01'],
-    columns=['ind',('total-consumption-btu', 'natural gas & other gases')],
+    columns=['ind', 'natural gas & other gases'],
     key_on="feature.id",
     fill_color="OrRd",
     fill_opacity=0.7,
@@ -122,58 +111,66 @@ cp = folium.Choropleth(
     bins= [0, 40, 80, 120, 160, 200]
 )
 cp.add_to(interactive_map)
-# geo_json_ = folium.GeoJson(
-#     piv,
-#     tooltip = folium.GeoJsonTooltip(
-#         fields=['ind', ('total-consumption-btu', 'fossil fuels')],
-#         aliases=["State:", "Fossil Fuels Consumption"],
-#         localize=True,
-#         sticky=False,
-#         labels=True,
-#         style="""
-#             background-color: #F0EFEF;
-#             border: 2px solid black;
-#             border-radius: 3px;
-#             box-shadow: 3px;
-#         """,
-#         max_width=800,
-#     )
-# )
-# geo_json_.add_to(interactive_map)
-# popup = folium.GeoJsonPopup(
-#     fields=['ind', ('total-consumption-btu', 'natural gas & other gases')],
-#     aliases=["State", "Total Consumption"],
-#     localize=True,
-#     labels=True,
-#     style="background-color: yellow;",
-# )
-# g = folium.GeoJson(
-#     piv.loc['2022-01'],
-#     tooltip=tooltip,
-#     popup=popup,
-# ).add_to(interactive_map)
-# tooltip = folium.GeoJsonTooltip(
-#     fields=['location', ('total-consumption-btu', 'natural gas & other gases')],
-#     aliases=["State:", "Fossil Fuels Consumption"],
-#     localize=True,
-#     sticky=False,
-#     labels=True,
-#     style="""
-#         background-color: #F0EFEF;
-#         border: 2px solid black;
-#         border-radius: 3px;
-#         box-shadow: 3px;
-#     """,
-#     max_width=800,
-# )
-
-# folium.GeoJson(
-#     states,
-#     tooltip=tooltip
-# ).add_to(interactive_map)
+style = {'fillColor': '#00000000', 'color': '#00000000'}
+geo_json_ = folium.GeoJson(
+    statesmerge,
+    tooltip = folium.GeoJsonTooltip(
+        fields=['ind', 'fossil fuels'],
+        aliases=["State:", "Fossil Fuels Consumption"],
+        localize=True,
+        sticky=False,
+        labels=True,
+        max_width=800,
+    ),
+    popup = folium.GeoJsonPopup(
+    fields=['ind', 'fossil fuels'],
+    aliases=["State", "Total Consumption"],
+    localize=True,
+    labels=True,
+    ),
+    style_function=lambda x: style
+)
+geo_json_.add_to(cho)
+geo_json_2 = folium.GeoJson(
+    statesmerge,
+    tooltip = folium.GeoJsonTooltip(
+        fields=['ind', 'all coal products'],
+        aliases=["State:", "Coal Products Consumption"],
+        localize=True,
+        sticky=False,
+        labels=True,
+        max_width=800,
+    ),
+    popup = folium.GeoJsonPopup(
+    fields=['ind', 'all coal products'],
+    aliases=["State", "Total Consumption"],
+    localize=True,
+    labels=True,
+    ),
+    style_function=lambda x: style
+)
+geo_json_2.add_to(ch)
+geo_json_3 = folium.GeoJson(
+    statesmerge,
+    tooltip = folium.GeoJsonTooltip(
+        fields=['ind', 'natural gas & other gases'],
+        aliases=["State:", "Natural Gas Consumption"],
+        localize=True,
+        sticky=False,
+        labels=True,
+        max_width=800,
+    ),
+    popup = folium.GeoJsonPopup(
+    fields=['ind', 'natural gas & other gases'],
+    aliases=["State", "Total Consumption"],
+    localize=True,
+    labels=True,
+    ),
+    style_function=lambda x: style
+)
+geo_json_3.add_to(cp)
 folium.LayerControl().add_to(interactive_map) 
 html_path = "fossilfuels_map.html"
 interactive_map.save("fossilfuels_map.html")
-# html_path = "fossilfuels_map.html"
 webbrowser.open(html_path)
 # Select specific fuel type. Fossil Fuel and can add layers upon layers
