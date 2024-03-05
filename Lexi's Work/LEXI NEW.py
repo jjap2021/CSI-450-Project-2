@@ -135,3 +135,4 @@ pivot_table = combined_breakdown.pivot_table(
     aggfunc={'Generation (BTU)': 'sum', 'Percentage of Overall Grid': 'mean'}
 )
 print(pivot_table)
+
