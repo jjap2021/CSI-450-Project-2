@@ -45,6 +45,8 @@ response = requests.get(
 )
 abbrs = pd.read_json(response.text)
 abbrs.head(3)
+abbrs.replace({'name': 'Kansa'}, 'Kansas', inplace=True)
+abbrs.replace({'name': 'Lousiana'}, 'Louisiana', inplace=True)
 states_id = gpd.GeoDataFrame.from_features(state_geo, crs="EPSG:4326")
 statesmerge = states_id.merge(abbrs, how="left", left_on="name", right_on="name")
 statesmerge["geometry"] = statesmerge.geometry.simplify(0.05)
