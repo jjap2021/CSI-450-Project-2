@@ -177,6 +177,4 @@ geo_json_3 = folium.GeoJson(
 geo_json_3.add_to(cp)
 folium.LayerControl().add_to(interactive_map) 
 html_path = "fossilfuels_map.html"
-interactive_map.save("fossilfuels_map.html")
-webbrowser.open(html_path)
-# Select specific fuel type. Fossil Fuel and can add layers upon layers
+interactive_map.save("Energy Consumption/fossilfuels_map.html")
