@@ -51,7 +51,7 @@ plt.ylabel('Percentage')
 plt.xticks(rotation=90)  
 plt.tight_layout()
 plt.savefig("Energy Consumption/Energy Distribution by State.png")
-plt.show()
+
 
 
 # QUESTION 3: Break that down by generation type. Where are the renewable sources of power located, and how much of the overall grid are they?
