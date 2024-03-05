@@ -16,9 +16,6 @@ f = open("Energy")
 d = json.load(f)
 
 
-
-
-
 df = pd.DataFrame(d["response"]["data"])
 df.sort_values(by=['period', 'location', 'fueltypeid'])
 
