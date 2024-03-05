@@ -137,13 +137,3 @@ pivot_table = combined_breakdown.pivot_table(
 print(pivot_table)
 
 
-
-
-
-
-
-
-
-    
-
-    
