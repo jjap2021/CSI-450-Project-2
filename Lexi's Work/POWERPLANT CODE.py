@@ -70,3 +70,4 @@ folium.LayerControl().add_to(interactive_map)
 interactive_map.save("power_plants_map.html")
 html_path = "power_plants_map.html"
 webbrowser.open(html_path)
+
