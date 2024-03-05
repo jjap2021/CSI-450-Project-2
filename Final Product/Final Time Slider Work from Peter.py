@@ -167,4 +167,6 @@ for source in fuel_types:
     t.save(f'{mainpath}/{source.title()}/{source}.html')
     y.save(f'{mainpath}/{source.title()}/{source}_capita.html')
 subprocess.run(["python", "Zak Backup.py"])
+subprocess.run(["python", "LEXI NEW.py"])
+subprocess.run(["python", "POWERPLANT CODES.py"])
 print('Done!')

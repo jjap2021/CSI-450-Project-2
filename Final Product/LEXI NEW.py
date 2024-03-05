@@ -50,7 +50,7 @@ plt.xlabel('State')
 plt.ylabel('Percentage')
 plt.xticks(rotation=90)  
 plt.tight_layout()
-plt.savefig("Energy Distribution by State.png")
+plt.savefig("Energy Consumption/Energy Distribution by State.png")
 plt.show()
 
 
@@ -144,5 +144,5 @@ ax.xaxis.set_visible(False)  # hide the x axis
 ax.yaxis.set_visible(False)  # hide the y axis
 table(ax, pivot_table, loc="center") 
 plt.subplots_adjust(left=0.3, bottom=0.2) # where df is your data frame
-plt.savefig("Summary Table.png")
+plt.savefig("Energy Consumption/Summary Table.png")
 
